@@ -21,7 +21,7 @@ export class AppComponent implements OnInit {
    this.powerPlants = this.apiService.fetchPowerPlants().pipe(
      map((r: PowerPlant[]) => r),
      tap((r: PowerPlant[]) => {
-       console.log(r);
+       console.log(r, 'rqrq');
        // this.activePp = r[0].id;
      })
    );
