@@ -11,17 +11,28 @@
       (opened)="activePp= pp.id"
       hideToggle>
       <mat-expansion-panel-header>
-        <mat-panel-title>
-          {{pp.ppName}}
+        <mat-panel-title class="w-30">
+          <span>{{pp.ppName}}</span>
         </mat-panel-title>
-        <mat-panel-description>
-          <button
-            mat-button
-            color="accent"
-            (click)="pp.isActive = !pp.isActive"
-          >{{pp.isActive ? 'Disable' : 'Activate'}}</button>
+        <mat-panel-description  class="d-flex w-100 justify-content-between">
+          <span
+            [matTooltip]="craftHHList(pp.connectedHH)">{{pp.connectedHH.length ? 'Connected households:\&nbsp;\&nbsp;' + pp.connectedHH.length : 'No connected households'}}</span>
+          <mat-icon
+            id="ppState"
+            class="mr-4"
+            [class.active]="pp.isActive"
+          >lens</mat-icon>
         </mat-panel-description>
       </mat-expansion-panel-header>
+      <div class="d-flex w-100 justify-content-between">
+        <span>35235</span>
+        <button
+          mat-raised-button
+          class="mw-100-px"
+          [class.activeBtn]="!pp.isActive"
+          (click)="openDialog(pp.connectedHH, 'delete', pp)"
+          color="warn">{{pp.isActive ? 'Deactivate' : 'Activate'}}</button>
+      </div>
     </mat-expansion-panel>
   </mat-accordion>
 

@@ -5,4 +5,23 @@
   .mat-expansion-panel {
     margin: 0px;
   }
+  .stateButton {
+    z-index: 4634634;
+  }
+  #ppState {
+    color: red;
+  }
+  .active {
+    color: lawngreen!important;
+  }
+  .w-30 {
+    width: 30%;
+  }
+  .mw-100-px {
+    min-width: 100px;
+  }
+  .activeBtn {
+    background-color:lawngreen!important;
+    color: #424242;
+  }
 }

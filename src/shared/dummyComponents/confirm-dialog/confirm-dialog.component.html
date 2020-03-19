@@ -1,0 +1,10 @@
+<div mat-dialog-content>
+  <p>Are you sure want to deactivate Power Plant? It will disconnect all customers</p>
+</div>
+<ng-template let-data>
+
+  <div mat-dialog-actions class="justify-content-between">
+    <button mat-button (click)="onClick(false)">No {{data?.hHList}}</button>
+    <button mat-button  (click)="onClick(true)" cdkFocusInitial>Ok</button>
+  </div>
+</ng-template>
