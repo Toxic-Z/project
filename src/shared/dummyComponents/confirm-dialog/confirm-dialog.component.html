@@ -1,10 +1,22 @@
+<h1 mat-dialog-title>{{craftPhrase()}}</h1>
 <div mat-dialog-content>
-  <p>Are you sure want to deactivate Power Plant? It will disconnect all customers</p>
-</div>
-<ng-template let-data>
-
-  <div mat-dialog-actions class="justify-content-between">
-    <button mat-button (click)="onClick(false)">No {{data?.hHList}}</button>
-    <button mat-button  (click)="onClick(true)" cdkFocusInitial>Ok</button>
+  <div *ngIf="data.dialogType === 'deactivate' && data.subject === 'pp' && data.hHList.length">
+    <span>These households will be disconnected from the existing Power Plant:</span>
+    <ul class="mt-2">
+      <li *ngFor="let hhname of data.hHList">{{hhname}}</li>
+    </ul>
   </div>
-</ng-template>
+</div>
+<div id="actions" mat-dialog-actions class="d-flex justify-content-around">
+  <button
+    mat-raised-button
+    class="cancel"
+    (click)="onClick(false)"
+  >Cancel</button>
+  <button
+    mat-raised-button
+    class="confirm"
+    cdkFocusInitial
+    (click)="onClick(true)"
+  >Confirm</button>
+</div>

@@ -17,7 +17,9 @@ import {ConfirmDialogComponent} from "../shared/dummyComponents/confirm-dialog/c
 })
 export class AppComponent implements OnInit {
   public powerPlants: Observable<PowerPlant[]>;
+  public households: Observable<HouserHold[]>;
   public activePp: number = null;
+  public displayedColumns: string[] = ['1', '2', '3']
   constructor(
     private title: Title,
     private apiService: ApiService,
@@ -31,34 +33,35 @@ export class AppComponent implements OnInit {
        // this.activePp = r[0].id;
      })
    );
+   this.households = this.apiService.fetchHouseholds().pipe(
+     map((hh: HouserHold[]) => hh),
+     tap(console.log)
+   )
   }
   ngOnInit(): void {
 
   }
-  public openDialog(hh: HouserHold[], type: string, pp): void {
+  public openDialog(hh: HouserHold[] = [], type: string, pp): void {
     const dialogRef = this.confirmDialog.open(ConfirmDialogComponent, {
-      width: '250px',
+      width: '400px',
+      height: 'auto',
       data: {
         dialogType: type,
-        subject: 'hh',
+        subject: 'pp',
         hHList: this.craftHHList(hh)
       }
     });
-    console.log(dialogRef)
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === true) {
-        this.apiService.updatePowerPlant(pp)
-      }
+    dialogRef.afterClosed().subscribe((result: boolean) => {
+      this.apiService.updatePowerPlant(result, pp.id);
     });
   }
-  public craftHHList (hh: HouserHold[]) {
+  public craftHHList(hh: HouserHold[]): string[] {
     if (hh.length) {
-      let res = '';
+      let res: string[] = [];
       hh.forEach((h: HouserHold) => {
-        res += h.name + ', '
+        res.push(h.hhName);
       });
       return res;
-    } else return '';
+    } else return [];
   }
 }

@@ -1,3 +1,5 @@
 export interface HouserHold {
-  name: string;
+  hhName: string;
+  id: number;
+  connectedPP: number[];
 }

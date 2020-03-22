@@ -13,6 +13,7 @@ import {MatListModule} from "@angular/material/list";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {ConfirmDialogComponent} from "../shared/dummyComponents/confirm-dialog/confirm-dialog.component";
 import {MAT_DIALOG_DEFAULT_OPTIONS, MatDialogModule} from "@angular/material/dialog";
+import {MatTableModule} from "@angular/material/table";
 
 @NgModule({
   declarations: [
@@ -20,19 +21,20 @@ import {MAT_DIALOG_DEFAULT_OPTIONS, MatDialogModule} from "@angular/material/dia
     ConfirmDialogComponent,
 
   ],
-  imports: [
-    BrowserModule,
-    AppRoutingModule,
-    NoopAnimationsModule,
-    MatExpansionModule,
-    MatFormFieldModule,
-    MatIconModule,
-    HttpClientModule,
-    MatButtonModule,
-    MatListModule,
-    MatTooltipModule,
-    MatDialogModule
-  ],
+    imports: [
+        BrowserModule,
+        AppRoutingModule,
+        NoopAnimationsModule,
+        MatExpansionModule,
+        MatFormFieldModule,
+        MatIconModule,
+        HttpClientModule,
+        MatButtonModule,
+        MatListModule,
+        MatTooltipModule,
+        MatDialogModule,
+        MatTableModule
+    ],
   providers: [{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}],
   bootstrap: [AppComponent],
 })
