@@ -25,7 +25,31 @@
         </mat-panel-description>
       </mat-expansion-panel-header>
       <div class="d-flex w-100 justify-content-between">
-        <span>35235</span>
+        <mat-form-field class="example-chip-list">
+          <mat-chip-list #chipList aria-label="Fruit selection">
+            <mat-chip
+              *ngFor="let hh of pp.connectedHH"
+              [selectable]="selectable"
+              [removable]="removable"
+              (removed)="remove(hh.id, pp.id)">
+              {{hh.hhName}}
+              <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
+            </mat-chip>
+            <input
+              placeholder="New fruit..."
+              #hhInput
+              [formControl]="formControl"
+              [matAutocomplete]="auto"
+              [matChipInputFor]="chipList"
+              [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
+              (matChipInputTokenEnd)="add($event)">
+          </mat-chip-list>
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+            <mat-option *ngFor="let fruit of filteredFruits | async" [value]="fruit">
+              {{fruit}}
+            </mat-option>
+          </mat-autocomplete>
+        </mat-form-field>
         <button
           mat-raised-button
           class="mw-100-px"

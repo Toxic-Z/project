@@ -51,7 +51,19 @@ export class ApiService {
     }
   ];
   constructor() { }
-  public updatePowerPlant(state, id: string): Observable<any> {
+  public updatePowerPlant(state, id: number): Observable<boolean> {
+    if (state) {
+      const index: number = this.ppArray.findIndex((pp: PowerPlant) => pp.id === id);
+      this.ppArray[index].isActive = !this.ppArray[index].isActive;
+    }
+    return of(this.ppArray[this.ppArray.findIndex((pp: PowerPlant) => pp.id === id)].isActive)
+  }
+  public removeHhFromPp(hhId, ppId): Observable<any> {
+    let pIndex: number = this.ppArray.findIndex((pp: PowerPlant) => pp.id === ppId);
+    let hIndex: number = this.ppArray[pIndex].connectedHH.findIndex((hh: HouserHold) => {
+      hh.id === hhId;
+    });
+    this.ppArray[pIndex].connectedHH.slice(hIndex, 1);
     return of()
   }
   public fetchHouseholds(): Observable<HouserHold[]> {

@@ -14,6 +14,9 @@ import {MatTooltipModule} from "@angular/material/tooltip";
 import {ConfirmDialogComponent} from "../shared/dummyComponents/confirm-dialog/confirm-dialog.component";
 import {MAT_DIALOG_DEFAULT_OPTIONS, MatDialogModule} from "@angular/material/dialog";
 import {MatTableModule} from "@angular/material/table";
+import {MatChipsModule} from "@angular/material/chips";
+import {MatAutocompleteModule} from "@angular/material/autocomplete";
+import {ReactiveFormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
@@ -21,20 +24,23 @@ import {MatTableModule} from "@angular/material/table";
     ConfirmDialogComponent,
 
   ],
-    imports: [
-        BrowserModule,
-        AppRoutingModule,
-        NoopAnimationsModule,
-        MatExpansionModule,
-        MatFormFieldModule,
-        MatIconModule,
-        HttpClientModule,
-        MatButtonModule,
-        MatListModule,
-        MatTooltipModule,
-        MatDialogModule,
-        MatTableModule
-    ],
+  imports: [
+    BrowserModule,
+    AppRoutingModule,
+    NoopAnimationsModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    HttpClientModule,
+    MatButtonModule,
+    MatListModule,
+    MatTooltipModule,
+    MatDialogModule,
+    MatTableModule,
+    MatChipsModule,
+    MatAutocompleteModule,
+    ReactiveFormsModule
+  ],
   providers: [{provide: MAT_DIALOG_DEFAULT_OPTIONS, useValue: {hasBackdrop: false}}],
   bootstrap: [AppComponent],
 })

@@ -1,4 +1,4 @@
-import {Component, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {Observable} from 'rxjs';
 import {PowerPlant} from '../shared/interfaces/power-plant';
@@ -7,6 +7,9 @@ import {map, tap} from 'rxjs/operators';
 import {HouserHold} from "../shared/interfaces/houser-hold";
 import {MatDialog} from "@angular/material/dialog";
 import {ConfirmDialogComponent} from "../shared/dummyComponents/confirm-dialog/confirm-dialog.component";
+import {FormControl} from "@angular/forms";
+import {COMMA, ENTER} from "@angular/cdk/keycodes";
+import {MatAutocomplete} from "@angular/material/autocomplete";
 
 @Component({
   selector: 'app-root',
@@ -19,7 +22,14 @@ export class AppComponent implements OnInit {
   public powerPlants: Observable<PowerPlant[]>;
   public households: Observable<HouserHold[]>;
   public activePp: number = null;
-  public displayedColumns: string[] = ['1', '2', '3']
+  public separatorKeysCodes: number[] = [ENTER, COMMA];
+  public removable = true;
+  public selectable: boolean = true;
+  public displayedColumns: string[] = ['1', '2', '3'];
+  public hhList: { name: string, id: number}[] = [];
+  formControl = new FormControl();
+  @ViewChild('hhInput') hhInput: ElementRef<HTMLInputElement>;
+  @ViewChild('auto') matAutocomplete: MatAutocomplete;
   constructor(
     private title: Title,
     private apiService: ApiService,
@@ -35,7 +45,15 @@ export class AppComponent implements OnInit {
    );
    this.households = this.apiService.fetchHouseholds().pipe(
      map((hh: HouserHold[]) => hh),
-     tap(console.log)
+     tap((hh: HouserHold[]) => {
+       hh.forEach((h: HouserHold) => {
+         this.hhList.push({
+           name: h.hhName,
+           id: h.id
+         });
+       });
+       console.log(this.hhList)
+     })
    )
   }
   ngOnInit(): void {
@@ -51,9 +69,12 @@ export class AppComponent implements OnInit {
         hHList: this.craftHHList(hh)
       }
     });
-    dialogRef.afterClosed().subscribe((result: boolean) => {
-      this.apiService.updatePowerPlant(result, pp.id);
+    dialogRef.afterClosed().subscribe((state: boolean) => {
+      this.apiService.updatePowerPlant(state, pp.id);
     });
+  }
+  public remove(hhId, ppId) {
+    this.apiService.removeHhFromPp(hhId, ppId);
   }
   public craftHHList(hh: HouserHold[]): string[] {
     if (hh.length) {
