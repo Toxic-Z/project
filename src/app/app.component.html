@@ -1,6 +1,18 @@
 <div
   id="app"
   class="d-flex flex-column w-100">
+  <div class="d-flex justify-content-between w-100 mb-3">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openDialog([], 'create', null, 'hh')"
+    >Add Household</button>
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="openDialog([], 'create', null, 'pp')"
+    >Add Power Plant</button>
+  </div>
   <mat-accordion
     class="w-100"
     *ngIf="(powerPlants|async)"
@@ -16,7 +28,9 @@
         </mat-panel-title>
         <mat-panel-description  class="d-flex w-100 justify-content-between">
           <span
-            [matTooltip]="craftHHList(pp.connectedHH)">{{pp.connectedHH.length ? 'Connected households:\&nbsp;\&nbsp;' + pp.connectedHH.length : 'No connected households'}}</span>
+            [matTooltip]="craftHHList(pp.connectedHH)"
+          >{{pp.connectedHH.length ? 'Connected households:\&nbsp;\&nbsp;' + pp.connectedHH.length : 'No connected households'}}
+          </span>
           <mat-icon
             id="ppState"
             class="mr-4"
@@ -24,9 +38,13 @@
           >lens</mat-icon>
         </mat-panel-description>
       </mat-expansion-panel-header>
-      <div class="d-flex w-100 justify-content-between">
-        <mat-form-field class="example-chip-list">
-          <mat-chip-list #chipList aria-label="Fruit selection">
+      <div class="d-flex w-100 justify-content-between align-items-center">
+        <mat-form-field
+          *ngIf="pp.isActive"
+          class="example-chip-list w-50">
+          <mat-chip-list
+            #chipList
+            aria-label="Fruit selection">
             <mat-chip
               *ngFor="let hh of pp.connectedHH"
               [selectable]="selectable"
@@ -36,7 +54,7 @@
               <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
             </mat-chip>
             <input
-              placeholder="New fruit..."
+              placeholder="Connect household..."
               #hhInput
               [formControl]="formControl"
               [matAutocomplete]="auto"
@@ -44,17 +62,22 @@
               [matChipInputSeparatorKeyCodes]="separatorKeysCodes"
               (matChipInputTokenEnd)="add($event)">
           </mat-chip-list>
-          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-            <mat-option *ngFor="let fruit of filteredFruits | async" [value]="fruit">
-              {{fruit}}
+          <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event, pp)">
+            <mat-option *ngFor="let hh of filterHh(pp.connectedHH)" [value]="hh">
+              {{hh.name}}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
+        <span
+          *ngIf="!pp.isActive"
+        >
+          Power Plant is deactivated
+        </span>
         <button
           mat-raised-button
           class="mw-100-px"
           [class.activeBtn]="!pp.isActive"
-          (click)="pp.isActive ? openDialog(pp.connectedHH, 'deactivate', pp) : openDialog(pp.connectedHH, 'activate', pp)"
+          (click)="pp.isActive ? openDialog(pp.connectedHH, 'deactivate', pp, 'pp') : openDialog(pp.connectedHH, 'activate', pp, 'pp')"
           color="warn">{{pp.isActive ? 'Deactivate' : 'Activate'}}</button>
       </div>
     </mat-expansion-panel>
@@ -62,15 +85,38 @@
   <mat-table
     class="mt-3"
     [dataSource]="households|async">
-    <ng-container matColumnDef="1">
-      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
+    <ng-container matColumnDef="name">
+      <mat-header-cell *matHeaderCellDef>Household name</mat-header-cell>
       <mat-cell *matCellDef="let element"> {{element.hhName}} </mat-cell>
     </ng-container>
-    <ng-container matColumnDef="2">
-      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.id}} </mat-cell>
+    <ng-container matColumnDef="connectedPPList">
+      <mat-header-cell *matHeaderCellDef>Connected Power Plants list</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <mat-list
+          class="w-100"
+          *ngIf="element.connectedPP.length"
+        >
+          <mat-list-item
+            *ngFor="let pp of element.connectedPP"
+          >
+            <div class="d-flex w-100 justify-content-around align-items-center py-5">
+              <span>{{pp.ppName}}</span>
+              <button
+                mat-raised-button
+                class="mw-100-px"
+                (click)="openDialog([], 'deactivate', pp, 'ppfromhh')"
+                color="warn">Disconnect</button>
+            </div>
+          </mat-list-item>
+        </mat-list>
+        <div
+          *ngIf="!element.connectedPP.length"
+        >
+          <span>Any connected Power Plants</span>
+        </div>
+      </mat-cell>
     </ng-container>
-    <ng-container matColumnDef="3">
+    <ng-container matColumnDef="connectedHhList">
       <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
       <mat-cell *matCellDef="let element"> {{element.connectedPP}} </mat-cell>
     </ng-container>

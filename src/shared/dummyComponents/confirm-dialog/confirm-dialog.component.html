@@ -6,6 +6,20 @@
       <li *ngFor="let hhname of data.hHList">{{hhname}}</li>
     </ul>
   </div>
+  <span *ngIf="data.subject === 'ppfromhh'">
+    All connected households will lose electricity also too.
+  </span>
+  <div
+    *ngIf="data.dialogType === 'create'"
+  >
+      <mat-form-field class="w-100">
+        <mat-label>Input name there...</mat-label>
+        <input
+          matInput
+          [(ngModel)]="name"
+        >
+      </mat-form-field>
+  </div>
 </div>
 <div id="actions" mat-dialog-actions class="d-flex justify-content-around">
   <button

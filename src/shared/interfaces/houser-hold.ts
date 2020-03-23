@@ -1,5 +1,7 @@
+import {PowerPlant} from "./power-plant";
+
 export interface HouserHold {
   hhName: string;
   id: number;
-  connectedPP: number[];
+  connectedPP: PowerPlant[];
 }
