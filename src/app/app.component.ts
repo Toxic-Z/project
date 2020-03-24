@@ -27,7 +27,8 @@ export class AppComponent implements OnInit {
   public removable = true;
   public selectable: boolean = true;
   public displayedColumns: string[] = ['name', 'connectedPPList', 'connectedHhList'];
-  public hhList: { name: string, id: number}[] = [];
+  public hhList: HouserHold[] = [];
+  public ppList: PowerPlant[] = [];
   formControl = new FormControl();
   @ViewChild('hhInput') hhInput: ElementRef<HTMLInputElement>;
   @ViewChild('auto') matAutocomplete: MatAutocomplete;
@@ -38,26 +39,25 @@ export class AppComponent implements OnInit {
   ) {
    title.setTitle('Power Plants & Households');
    this.powerPlants = this.apiService.fetchPowerPlants().pipe(
-     map((r: PowerPlant[]) => r)
+     map((r: PowerPlant[]) => r),
+     tap((pp: PowerPlant[]) => {
+       this.ppList = pp;
+     })
    );
    this.households = this.apiService.fetchHouseholds().pipe(
      map((hh: HouserHold[]) => hh),
      tap((hh: HouserHold[]) => {
-       hh.forEach((h: HouserHold) => {
-         this.hhList.push({
-           name: h.hhName,
-           id: h.id
-         });
-       });
+       this.hhList = hh;
      })
    )
   }
   ngOnInit(): void {
   }
   public selected(event: MatAutocompleteSelectedEvent, pp: PowerPlant): void {
-    this.apiService.connectHhToPP(event.option.value.id, pp.id);
-    this.hhInput.nativeElement.value = '';
-    this.formControl.setValue(null);
+    this.apiService.connectHhToPP(event.option.value.id, pp.id).subscribe(() => {
+      this.hhInput.nativeElement.value = '';
+      this.formControl.setValue(null);
+    });
   }
   public add(event: MatChipInputEvent): void {
     if (event.input) {
@@ -65,57 +65,123 @@ export class AppComponent implements OnInit {
     }
     this.formControl.setValue(null);
   }
-  public filterHh(connectedHh: HouserHold[]): { name: string, id: number}[] {
+  public filterHh(connectedHh: HouserHold[]): HouserHold[] {
     const connectedHhIds: number[] = [];
     connectedHh.forEach((h: HouserHold) => {
       connectedHhIds.push(h.id);
     });
-    const resultArr:  { name: string, id: number}[] = [];
-    this.hhList.forEach((h:  { name: string, id: number}) => {
+    const resultArr:  HouserHold[] = [];
+    this.hhList.forEach((h:  HouserHold) => {
       if (!connectedHhIds.includes(h.id)) {
         resultArr.push(h);
       }
     });
     return resultArr;
   }
-  public openDialog(hh: HouserHold[] = [], type: string, pp, subject: string): void {
+  public openDialog(hhArr: HouserHold[] = [], type: string, pp: PowerPlant = null, subject: string, hh: HouserHold = null, disconnectingHh: HouserHold = null): void {
     const dialogRef = this.confirmDialog.open(ConfirmDialogComponent, {
-      width: '400px',
+      width: 'auto',
       height: 'auto',
       data: {
         dialogType: type,
         subject: subject,
-        hHList: this.craftHHList(hh)
+        hHList: this.craftHHList(hhArr),
+        hhArr: this.hhList,
+        hh: hh,
+        ppArray: this.ppList,
+        disconnectingHh: disconnectingHh
       }
     });
     switch (type) {
-      case ('activate'||'deactivate'):
-        dialogRef.afterClosed().subscribe((state: boolean) => {
-          this.apiService.updatePowerPlant(state, pp.id);
-        });
+      case ('deactivate'):
+      case ('activate'):
+        switch (subject) {
+          case ('ppfromhh'):
+            dialogRef.afterClosed().subscribe((state: boolean) => {
+              if (state) {
+                this.apiService.removePPFromHh(hh, pp);
+              }
+            });
+            break;
+          case ('pp'):
+            dialogRef.afterClosed().subscribe((state: boolean) => {
+              this.apiService.updatePowerPlant(state, pp);
+            });
+        }
         break;
       case ('create'):
         switch (subject) {
           case ('hh'):
             dialogRef.afterClosed().subscribe((res: {name: string, result: boolean}) => {
-              if (res) {
-                this.apiService.addHh(res);
+              if (res.result) {
+                this.apiService.addHh(res).subscribe((hh: HouserHold) => {
+                  if (!this.hhList.includes(hh)) {
+                    this.hhList.push(hh);
+                  }
+                });
                 this.households = this.apiService.fetchHouseholds();
               }
             });
             break;
           case ('pp'):
             dialogRef.afterClosed().subscribe((res: {name: string, result: boolean}) => {
+              if (res.result) {
+                this.apiService.addPP(res).subscribe((pp: PowerPlant) => {
+                  if (!this.ppList.includes(pp)) {
+                    this.ppList.push(pp);
+                  }
+                });
+              }
+            });
+            break;
+        }
+      case ('connect'):
+        switch (subject) {
+          case ('hhtohh'):
+            dialogRef.afterClosed().subscribe((res: {hhForConnect: HouserHold, result: boolean}) => {
+              if (res.result) {
+                this.apiService.connectHhToHh(hh, res.hhForConnect);
+              }
+            });
+        }
+        break;
+      case ('disconnect'):
+        switch (subject) {
+          case ('hhfromhh'):
+            dialogRef.afterClosed().subscribe((res: boolean) => {
               if (res) {
-                this.apiService.addPP(res);
+                this.apiService.removeHhFromHh(hh, disconnectingHh);
               }
             });
             break;
         }
     }
   }
-  public remove(hhId, ppId) {
-    this.apiService.removeHhFromPp(hhId, ppId);
+  public remove(hh: HouserHold, pp: PowerPlant) {
+    this.apiService.removeHhFromPp(hh, pp);
+  }
+  public checkActivePP(hh: HouserHold): boolean {
+    let res = false;
+    hh.connectedHH.forEach((hh: HouserHold) => {
+      hh.connectedPP.forEach((pp: PowerPlant) => {
+        if (pp.isActive) {
+          res = true;
+        }
+      });
+      hh.connectedHH.forEach((hh: HouserHold) => {
+        hh.connectedPP.forEach((pp: PowerPlant) => {
+          if (pp.isActive) {
+            res = true;
+          }
+        });
+      });
+    });
+    hh.connectedPP.forEach((pp: PowerPlant) => {
+      if (pp.isActive) {
+        res = true;
+      }
+    });
+    return res;
   }
   public craftHHList(hh: HouserHold[]): string[] {
     if (hh.length) {

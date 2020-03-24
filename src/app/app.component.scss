@@ -1,7 +1,8 @@
 #app {
   background: #303030;
-  height: 100%;
+  height: auto;
   padding: 2rem;
+  min-height: 100vh;
   .mat-expansion-panel {
     margin: 0px;
   }
@@ -17,12 +18,26 @@
   .w-30 {
     width: 30%;
   }
-  .mw-100-px {
-    min-width: 100px;
+  .mw-115-px {
+    min-width: 115px;
     height: fit-content;
   }
   .activeBtn {
     background-color:lawngreen!important;
     color: #424242;
+  }
+  .homeicon {
+    color: red;
+  }
+  #availableHh {
+    .ng-star-inserted {
+      width: 100%;
+    }
+  }
+  .pr-16-px {
+    margin-right: 16px;
+  }
+  .overflow {
+    overflow-y: auto;
   }
 }

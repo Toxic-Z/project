@@ -20,8 +20,48 @@
         >
       </mat-form-field>
   </div>
+  <div
+    *ngIf="data.dialogType === 'connect' "
+    class="d-flex w-100 flex-column"
+  >
+    <h2>Connect household <b>{{data.hh.hhName}}</b> to:</h2>
+    <mat-list
+    >
+      <mat-list-item
+        *ngFor="let hh of data.hhArr"
+      >
+        <div
+          class="w-100 d-flex justify-content-between align-items-center"
+        >
+          <span><b>{{hh.hhName}}</b></span>
+          <button
+            mat-raised-button
+            class="confirm"
+            cdkFocusInitial
+            (click)="onClick(true, hh)"
+          >Connect</button>
+        </div>
+      </mat-list-item>
+      <mat-list-item>
+        <button
+          mat-raised-button
+          class="cancel"
+          (click)="onClick(false)"
+        >Cancel</button>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div
+    *ngIf="data.dialogType === 'disconnect'"
+    class="d-flex w-100">
+    <h2>Household <b>{{data.disconnectingHh.hhName}}</b> will be disconnected from the <b>{{data.hh.hhName}}</b>. Continue?</h2>
+  </div>
 </div>
-<div id="actions" mat-dialog-actions class="d-flex justify-content-around">
+<div
+  *ngIf="data.dialogType !== 'connect'"
+  id="actions"
+  mat-dialog-actions
+  class="d-flex justify-content-around">
   <button
     mat-raised-button
     class="cancel"

@@ -49,7 +49,7 @@
               *ngFor="let hh of pp.connectedHH"
               [selectable]="selectable"
               [removable]="removable"
-              (removed)="remove(hh.id, pp.id)">
+              (removed)="remove(hh, pp)">
               {{hh.hhName}}
               <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
             </mat-chip>
@@ -64,7 +64,7 @@
           </mat-chip-list>
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event, pp)">
             <mat-option *ngFor="let hh of filterHh(pp.connectedHH)" [value]="hh">
-              {{hh.name}}
+              {{hh.hhName}}
             </mat-option>
           </mat-autocomplete>
         </mat-form-field>
@@ -83,28 +83,36 @@
     </mat-expansion-panel>
   </mat-accordion>
   <mat-table
-    class="mt-3"
+    class="mt-3 overflow"
     [dataSource]="households|async">
     <ng-container matColumnDef="name">
       <mat-header-cell *matHeaderCellDef>Household name</mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.hhName}} </mat-cell>
+      <mat-cell *matCellDef="let element">
+        <div class="d-flex align-items-center">
+          <mat-icon
+            [class.active]="checkActivePP(element)"
+            class="homeicon mr-1">home</mat-icon>
+          <span>{{element.hhName}}</span>
+        </div>
+      </mat-cell>
     </ng-container>
     <ng-container matColumnDef="connectedPPList">
-      <mat-header-cell *matHeaderCellDef>Connected Power Plants list</mat-header-cell>
+      <mat-header-cell *matHeaderCellDef>Connected Power Plants</mat-header-cell>
       <mat-cell *matCellDef="let element">
         <mat-list
+          id="connectedHhToHh"
           class="w-100"
           *ngIf="element.connectedPP.length"
         >
           <mat-list-item
             *ngFor="let pp of element.connectedPP"
           >
-            <div class="d-flex w-100 justify-content-around align-items-center py-5">
+            <div class="d-flex w-100 justify-content-between align-items-center">
               <span>{{pp.ppName}}</span>
               <button
                 mat-raised-button
-                class="mw-100-px"
-                (click)="openDialog([], 'deactivate', pp, 'ppfromhh')"
+                class="mw-115-px"
+                (click)="openDialog([], 'deactivate', pp, 'ppfromhh', element)"
                 color="warn">Disconnect</button>
             </div>
           </mat-list-item>
@@ -117,11 +125,50 @@
       </mat-cell>
     </ng-container>
     <ng-container matColumnDef="connectedHhList">
-      <mat-header-cell *matHeaderCellDef> No. </mat-header-cell>
-      <mat-cell *matCellDef="let element"> {{element.connectedPP}} </mat-cell>
+      <mat-header-cell *matHeaderCellDef>Connected households</mat-header-cell>
+      <mat-cell *matCellDef="let element">
+        <mat-list
+          id="availableHh"
+          *ngIf="element.connectedHH.length"
+          class="d-flex flex-column w-100">
+          <mat-list-item
+            *ngIf="element.connectedHH.length < hhList.length - 1"
+          >
+            <div class="d-flex w-100 justify-content-between align-items-center">
+              <div></div>
+            <button
+              mat-raised-button
+              class="mw-115-px activeBtn align-self-end"
+              (click)="openDialog([], 'connect', null, 'hhtohh', element)"
+            >Connect one</button>
+            </div>
+          </mat-list-item>
+          <mat-list-item
+            *ngFor="let hh of element.connectedHH"
+          >
+            <div class="d-flex w-100 justify-content-between align-items-center">
+              <span>{{hh.hhName}}</span>
+              <button
+                mat-raised-button
+                class="mw-115-px"
+                (click)="openDialog([], 'disconnect', null, 'hhfromhh', element, hh)"
+                color="warn">Disconnect</button>
+            </div>
+            </mat-list-item>
+        </mat-list>
+        <div
+          *ngIf="!element.connectedHH.length"
+          class="d-flex w-100 justify-content-between align-items-center">
+          <span>Any connected households</span>
+          <button
+            mat-raised-button
+            class="mw-115-px activeBtn pr-16-px"
+            (click)="openDialog([], 'connect', element, 'hhtohh', element)"
+          >Connect one</button>
+        </div>
+      </mat-cell>
     </ng-container>
     <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
     <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
   </mat-table>
-
 </div>
